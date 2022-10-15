@@ -6,6 +6,7 @@ export type Selector = string;
 export type EventName = string;
 export type Value = string | number | boolean;
 export type Callback = (event: EventType) => void;
+export type AnyCallback = (...args: any[]) => void;
 export type ExtendElement = Element | Window | Document;
 export interface ConditionalConfig {
   selector?: string;
@@ -20,6 +21,16 @@ export interface ConditionalConfig {
   isDisabled?: boolean;
   is?: (event: any) => boolean;
 }
+
+export type MutationObserverHandler = (
+  mutations: Array<MutationRecord>
+) => void;
+export type ResizeObserverHandler = (
+  entries: Array<ResizeObserverEntry>
+) => void;
+export type IntersectionObserverHandler = (
+  entries: Array<IntersectionObserverEntry>
+) => void;
 
 export type ConditionsStorage = Map<keyof ConditionalConfig, ConditionFunction>;
 export type ConditionFunction = (
@@ -54,15 +65,19 @@ export const mutationObserverEvents = [
 
 export type ImplementedHandler = (e: any) => any | void;
 
+export type ListenerConfig = {
+  once?: boolean;
+  lazy?: boolean;
+};
 export type EventData = {
   el: ExtendElement;
   eventName: EventName;
   callback: Callback;
   conditionalConfig: ConditionalConfig;
-  state: {};
-  listenerConfig: {
-    once: boolean;
+  state?: {
+    lazyCallback?: AnyCallback;
   };
+  listenerConfig: ListenerConfig;
 };
 
 export interface ElemenExtendMethods {
@@ -89,10 +104,17 @@ export type EventStorageEl = {
 
 export type EventStorage = Map<ExtendElement, EventStorageEl>;
 
-export interface ConditionalEventsOption {
+export interface ConditionalEventsOptions {
   customEvents?: boolean;
   resizeObserverOptions?: {
     box?: "content-box" | "border-box" | "device-pixel-content-box";
+  };
+  mutationObserverOptions?: {
+    subtree?: boolean;
+    globalSingleListener?: boolean;
+    rootElement?: HTMLElement;
+    characterData?: boolean;
+    childList?: boolean;
   };
   intersectionObserverOptions?: {
     rootMargin?: IntersectionObserver["rootMargin"];
@@ -184,6 +206,11 @@ export class onVisibilityDetail {
   }
 }
 
+export interface ObserverControllers {
+  mutationObserver: mutationObserver;
+  resizeObserver: resizeObserver;
+  intersectionObserver: intersectionObserver;
+}
 export class onVisibleDetail {
   isVisible: boolean;
   constructor(public entry: IntersectionObserverEntry) {
@@ -204,7 +231,7 @@ export interface InitReturns {
   mutationObserver: mutationObserver;
   resizeObserver: resizeObserver;
   intersectionObserver: intersectionObserver;
-  options: ConditionalEventsOption;
+  options: ConditionalEventsOptions;
   removeEvents: RemoveEventsMethod;
 }
 
@@ -221,6 +248,6 @@ declare global {
     intersectionObserver: IntersectionObserver;
   }
   interface Window extends ElemenExtendMethods {
-    conditionalEventsOption: ConditionalEventsOption;
+    ConditionalEventsOptions: ConditionalEventsOptions;
   }
 }

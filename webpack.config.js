@@ -1,6 +1,5 @@
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
-const nodeExternals = require('webpack-node-externals');
 
 module.exports = function (env = {}) {
   return {
@@ -25,7 +24,6 @@ module.exports = function (env = {}) {
       port: 9002,
       host: '127.0.0.1'
     },
-    externals: [nodeExternals()],
     optimization: {
       minimize: true,
       minimizer: [

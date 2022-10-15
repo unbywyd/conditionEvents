@@ -1,15 +1,15 @@
 import { elementHasEventsListeners, getElementsByEventName } from "./helpers";
-import { ConditionalEventsOption, ExtendElement, onResizeEventName } from "./models";
+import { ConditionalEventsOptions, ExtendElement, onResizeEventName, ResizeObserverHandler } from "./models";
 
 export class resizeObserver {
   observer: ResizeObserver | null;
   constructor(
-    public handlers: any[],
-    public options: ConditionalEventsOption = {}
+    public handlers: Array<ResizeObserverHandler>,
+    public options: ConditionalEventsOptions = {}
   ) {}
-  hasMutations(mutations: any[]) {
+  hasMutations(etries: Array<ResizeObserverEntry>) {
     for (let handler of this.handlers) {
-      handler(mutations);
+      handler(etries);
     }
   }
   addElement(element: ExtendElement) {

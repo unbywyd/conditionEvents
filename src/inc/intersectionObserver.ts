@@ -1,19 +1,20 @@
 import { elementHasEventsListeners, getElementsByEventNames } from "./helpers";
 import {
-  ConditionalEventsOption,
+  ConditionalEventsOptions,
   ExtendElement,
   intersectionEvents,
+  IntersectionObserverHandler,
 } from "./models";
 
 export class intersectionObserver {
   observer: IntersectionObserver | null;
   constructor(
-    public handlers: any[],
-    public options: ConditionalEventsOption = {}
+    public handlers: Array<IntersectionObserverHandler>,
+    public options: ConditionalEventsOptions = {}
   ) {}
-  hasMutations(mutations: any[]) {
+  hasMutations(entries: Array<IntersectionObserverEntry>) {
     for (let handler of this.handlers) {
-        handler(mutations);
+        handler(entries);
     }
   }
   addElement(element: ExtendElement) {

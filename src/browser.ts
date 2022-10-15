@@ -1,3 +1,6 @@
 import Init from "./index";
-Init(window.conditionalEventsOption ?? {});
-
+Init(window.ConditionalEventsOptions ?? {
+    mutationObserverOptions: {
+        globalSingleListener: false
+    }
+});

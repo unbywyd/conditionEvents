@@ -4,7 +4,7 @@ import { omit } from "./inc/helpers";
 import {
   Callback,
   ConditionalConfig,
-  ConditionalEventsOption,
+  ConditionalEventsOptions,
   EventData,
   EventName,
   EventStorageData,
@@ -12,6 +12,10 @@ import {
   ExtendElement,
   ImplementedHandler,
   InitReturns,
+  IntersectionObserverHandler,
+  ListenerConfig,
+  MutationObserverHandler,
+  ResizeObserverHandler,
 } from "./inc/models";
 import { customEventsStorage, eventStorage } from "./inc/state";
 
@@ -19,8 +23,9 @@ import customEventsInit from "./inc/customEvents";
 import { mutationObserver } from "./inc/mutationObserver";
 import { resizeObserver } from "./inc/resizeObserver";
 import { intersectionObserver } from "./inc/intersectionObserver";
+import initLazy from "./inc/lazy";
 
-export default function(options: ConditionalEventsOption={}) {
+export default function (options: ConditionalEventsOptions = {}) {
   options = Object.assign(
     {},
     {
@@ -30,30 +35,34 @@ export default function(options: ConditionalEventsOption={}) {
       },
       intersectionObserverOptions: {
         rootMargin: "0px",
-      }
+      },
     },
     options
   );
-  let mutationHandlers: any[] = [];
+  let mutationHandlers: Array<MutationObserverHandler> = [];
   let mutationObserverController = new mutationObserver(
     mutationHandlers,
     options
   );
 
-  let resizeHandlers: any[] = [];
+  let resizeHandlers: Array<ResizeObserverHandler> = [];
   let resizeObserverController = new resizeObserver(resizeHandlers, options);
 
-  let intersectionHandlers: any[] = [];
+  let intersectionHandlers: Array<IntersectionObserverHandler> = [];
   let intersectionObserverController = new intersectionObserver(
     intersectionHandlers,
     options
   );
 
-  let customEvents = customEventsInit(options, {
+  let controllers = {
     mutationObserver: mutationObserverController,
     resizeObserver: resizeObserverController,
     intersectionObserver: intersectionObserverController,
-  });
+  };
+  let LazyInstance = initLazy(options, controllers);
+
+  let customEvents = customEventsInit(options, controllers);
+
   if (options.customEvents) {
     for (let moduleName in customEvents) {
       let CustomEventsClasses: any = customEvents;
@@ -103,7 +112,7 @@ export default function(options: ConditionalEventsOption={}) {
     element: ExtendElement,
     callback: Callback,
     conditionalConfig?: ConditionalConfig,
-    eventListenerOptions?: any
+    eventListenerOptions?: ListenerConfig
   ) {
     if (eventName in customEventsStorage) {
       customEventsStorage[eventName].regCallback(
@@ -216,9 +225,14 @@ export default function(options: ConditionalEventsOption={}) {
     eventName: EventName,
     callback: Callback,
     conditionalConfig: ConditionalConfig,
-    eventListenerOptions: any
+    eventListenerOptions: ListenerConfig
   ) {
     let callbacks = getCallbacks(this, eventName);
+    let lazyCallback;
+    if (eventListenerOptions.lazy && conditionalConfig.selector) {
+      lazyCallback = function (element: HTMLElement) {};
+      LazyInstance.provide(conditionalConfig.selector, eventName, lazyCallback);
+    }
     regCallbacksForCustomEvent(
       eventName,
       this,
@@ -232,7 +246,9 @@ export default function(options: ConditionalEventsOption={}) {
       callback,
       conditionalConfig,
       listenerConfig: eventListenerOptions,
-      state: {},
+      state: {
+        lazyCallback,
+      },
     });
   };
 
@@ -281,7 +297,16 @@ export default function(options: ConditionalEventsOption={}) {
     let eventData = callbacks.get(callback);
     removeCallbacksForCustomEvent(eventName, element, callback, eventData);
 
-    callbacks.delete(callback); // Remove only callback not listener
+    let afterRemove = eventData.state.lazyCallback ? false : true;
+    if (eventData.state.lazyCallback) {
+      LazyInstance.unprovide(
+        eventData.conditionalConfig.selector,
+        eventName,
+        eventData.state.lazyCallback
+      );
+    }
+
+    callbacks.delete(callback); 
     if (callbacks.size === 0 && removeEventListener) {
       element.removeEventListener(
         eventName,
@@ -289,7 +314,9 @@ export default function(options: ConditionalEventsOption={}) {
       );
       delete storage[eventName];
     }
-    afterRemoveCallbacksForCustomEvent(eventName, element);
+    if (afterRemove) {
+      afterRemoveCallbacksForCustomEvent(eventName, element);
+    }
   };
 
   let removeConditionalEventListener = function (
@@ -317,7 +344,7 @@ export default function(options: ConditionalEventsOption={}) {
       this.addEventListener(
         eventName,
         implementedHandler,
-        omit(eventListenerOptions, "once")
+        omit(eventListenerOptions, "once", "lazy")
       );
     }
     regCallback.call(
@@ -343,9 +370,7 @@ export default function(options: ConditionalEventsOption={}) {
   let initReturns: InitReturns = {
     removeEvents,
     options,
-    mutationObserver: mutationObserverController,
-    resizeObserver: resizeObserverController,
-    intersectionObserver: intersectionObserverController,
+    ...controllers,
   };
   return initReturns;
 }

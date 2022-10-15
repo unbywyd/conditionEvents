@@ -33,19 +33,22 @@ export function conditionsChecker(
   eventData: EventData
 ): boolean {
   let conditionalConfig = eventData.conditionalConfig;
+
   for (let key in conditionalConfig) {
-    let configValue = prepareValue(
-      conditionalConfig[key as keyof ConditionalConfig]
-    );
-    if (
-      conditionsStorage.has(key as keyof ConditionalConfig) &&
-      configValue !== undefined
-    ) {
-      let conditionChecker = conditionsStorage.get(
-        key as keyof ConditionalConfig
+    if (key in conditionsModules) {
+      let configValue = prepareValue(
+        conditionalConfig[key as keyof ConditionalConfig]
       );
-      if (!conditionChecker(configValue, event, eventName, eventData)) {
-        return false;
+      if (
+        conditionsStorage.has(key as keyof ConditionalConfig) &&
+        configValue !== undefined
+      ) {
+        let conditionChecker = conditionsStorage.get(
+          key as keyof ConditionalConfig
+        );
+        if (!conditionChecker(configValue, event, eventName, eventData)) {
+          return false;
+        }
       }
     }
   }

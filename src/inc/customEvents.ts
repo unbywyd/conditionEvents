@@ -3,7 +3,7 @@ import { eventStorage } from "./state";
 import {
   Callback,
   ConditionalConfig,
-  ConditionalEventsOption,
+  ConditionalEventsOptions,
   EventData,
   EventStorage,
   EventStorageData,
@@ -26,32 +26,22 @@ import {
   onVisibleDetail,
   onHiddenEventName,
   EventName,
+  ObserverControllers,
+  ListenerConfig,
 } from "./models";
-import {
-  elementInViewport,
-  elementPartialInViewport,
-  getElementsByEventName,
-} from "./helpers";
-import { mutationObserver } from "./mutationObserver";
-import { resizeObserver } from "./resizeObserver";
-import { intersectionObserver } from "./intersectionObserver";
+
 export default function customEventsInit(
-  options: ConditionalEventsOption,
-  observers: {}
+  options: ConditionalEventsOptions,
+  observers: ObserverControllers
 ) {
   let displatchEvent = (el: Element, eventName: EventName, data: any) => {
     let event = new CustomEvent(eventName, data);
     el.dispatchEvent(event);
   };
 
-  let { mutationObserver, resizeObserver, intersectionObserver } =
-    observers as {
-      mutationObserver: mutationObserver;
-      resizeObserver: resizeObserver;
-      intersectionObserver: intersectionObserver;
-    };
+  let { mutationObserver, resizeObserver, intersectionObserver } = observers;
   class mutationDepEvents extends AbstractEvent {
-    options: ConditionalEventsOption;
+    options: ConditionalEventsOptions;
     constructor(eventName: string) {
       super(eventName);
     }
@@ -196,10 +186,10 @@ export default function customEventsInit(
     }
     mutationsHandler(mutations: any[]) {
       for (let mutation of mutations.filter((m) => m.type == "attributes")) {
-        if (!mutation.target.hasAttribute(mutation.attributeName)) {          
+        if (!mutation.target.hasAttribute(mutation.attributeName)) {
           displatchEvent(mutation.target, this.eventName, {
             bubbles: true,
-            detail: new onDeleteAttributeDetail(mutation)
+            detail: new onDeleteAttributeDetail(mutation),
           });
         }
       }
@@ -218,12 +208,19 @@ export default function customEventsInit(
         if (entry.contentBoxSize && entry.contentRect) {
           entry.target.prevOnResizeRect = entry.contentRect;
           displatchEvent(entry.target, this.eventName, {
-            detail: new onResizeDetail(entry, entry.target?.prevOnResizeRect)
+            bubbles: true,
+            detail: new onResizeDetail(entry, entry.target?.prevOnResizeRect),
           });
         }
       }
     }
-    regCallback(element: ExtendElement) {
+    regCallback(
+      element: ExtendElement,
+      callback: Callback,
+      conditionalConfig: ConditionalConfig,
+      eventListenerOptions: ListenerConfig
+    ) {
+      if(eventListenerOptions.lazy && conditionalConfig.selector) return
       resizeObserver.addElement(element);
     }
     afterRemoveCallback(element: ExtendElement) {
@@ -237,20 +234,26 @@ export default function customEventsInit(
       super(onVisibilityEventName);
     }
     intersectionHandler(entries: any[]) {
-      for (const entry of entries) {       
-        let detail = new onVisibilityDetail(entry);    
+      for (const entry of entries) {
+        let detail = new onVisibilityDetail(entry);
         let state = `${detail.isFullyVisible}-${detail.isVisible}-${detail.isHidden}`;
 
         if (entry.target.prevOnVisibilityState != state) {
           entry.target.prevOnVisibilityState = state;
           displatchEvent(entry.target, this.eventName, {
             detail,
-            bubbles: true // ?
+            bubbles: true, // ?
           });
         }
       }
     }
-    regCallback(element: ExtendElement) {
+    regCallback(
+      element: ExtendElement,
+      callback: Callback,
+      conditionalConfig: ConditionalConfig,
+      eventListenerOptions: ListenerConfig
+    ) {
+      if(eventListenerOptions.lazy && conditionalConfig.selector) return
       intersectionObserver.addElement(element);
     }
     afterRemoveCallback(element: ExtendElement) {
@@ -259,13 +262,13 @@ export default function customEventsInit(
   }
   Object.defineProperty(onVisibility, "name", { value: onVisibilityEventName });
 
-  function onVisibleHandler(entry: any) {    
+  function onVisibleHandler(entry: any) {
     let detail = new onVisibleDetail(entry);
     let push = (eventName: string, state: boolean) => {
       entry.target.prevOnVisibleState = state;
       displatchEvent(entry.target, eventName, {
         detail,
-        bubbles: true
+        bubbles: true,
       });
     };
     if (detail.isVisible && !entry.target.prevOnVisibleState) {
@@ -283,7 +286,13 @@ export default function customEventsInit(
         onVisibleHandler(entry);
       }
     }
-    regCallback(element: ExtendElement) {
+    regCallback(
+      element: ExtendElement,
+      callback: Callback,
+      conditionalConfig: ConditionalConfig,
+      eventListenerOptions: ListenerConfig
+    ) {
+      if(eventListenerOptions.lazy && conditionalConfig.selector) return
       intersectionObserver.addElement(element);
     }
     afterRemoveCallback(element: ExtendElement) {
@@ -301,7 +310,13 @@ export default function customEventsInit(
         onVisibleHandler(entry);
       }
     }
-    regCallback(element: ExtendElement) {
+    regCallback(
+      element: ExtendElement,
+      callback: Callback,
+      conditionalConfig: ConditionalConfig,
+      eventListenerOptions: ListenerConfig
+    ) {
+      if(eventListenerOptions.lazy && conditionalConfig.selector) return
       intersectionObserver.addElement(element);
     }
     afterRemoveCallback(element: ExtendElement) {
