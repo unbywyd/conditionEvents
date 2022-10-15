@@ -8,15 +8,15 @@ export type Value = string | number | boolean;
 export type Callback = (event: EventType) => void;
 export type ExtendElement = Element | Window | Document;
 export interface ConditionalConfig {
-  selector?: string; // +
-  media?: string | Array<string>; // +
+  selector?: string;
+  media?: string | Array<string>;
   attrNameContains?: RegExp | string | Array<string | RegExp>;
   valueContains?: RegExp | Value | Array<Value | RegExp>;
   oldValueContains?: RegExp | Value | Array<Value | RegExp>;
-  isFullyVisible?: boolean; // +
-  isVisible?: boolean; // +
-  isFocused?: boolean; // +
-  isChecked?: boolean; // +
+  isFullyVisible?: boolean;
+  isVisible?: boolean;
+  isFocused?: boolean;
+  isChecked?: boolean;
   isDisabled?: boolean;
   is?: (event: any) => boolean;
 }
@@ -89,26 +89,7 @@ export type EventStorageEl = {
 
 export type EventStorage = Map<ExtendElement, EventStorageEl>;
 
-declare global {
-  interface Element extends ElemenExtendMethods {
-    prevOnResizeRect: DOMRectReadOnly;
-    prevOnVisibleState: boolean;
-  }
-  interface Document extends ElemenExtendMethods {
-    conditionsStorage: ConditionsStorage;
-    eventStorage: EventStorage;
-    mutationObserver: MutationObserver;
-    resizeObserver: ResizeObserver;
-    intersectionObserver: IntersectionObserver;
-  }
-  interface Window extends ElemenExtendMethods {
-    conditionEventsOption: ConditionEventsOption
-  }
-}
-
-export interface EventType extends CustomEvent, Event {}
-
-export interface ConditionEventsOption {
+export interface ConditionalEventsOption {
   customEvents?: boolean;
   resizeObserverOptions?: {
     box?: "content-box" | "border-box" | "device-pixel-content-box";
@@ -117,6 +98,8 @@ export interface ConditionEventsOption {
     rootMargin?: IntersectionObserver["rootMargin"];
   };
 }
+
+export interface EventType extends CustomEvent, Event {}
 
 export class onResizeDetail {
   rect: DOMRectReadOnly;
@@ -221,6 +204,23 @@ export interface InitReturns {
   mutationObserver: mutationObserver;
   resizeObserver: resizeObserver;
   intersectionObserver: intersectionObserver;
-  options: ConditionEventsOption;
+  options: ConditionalEventsOption;
   removeEvents: RemoveEventsMethod;
+}
+
+declare global {
+  interface Element extends ElemenExtendMethods {
+    prevOnResizeRect: DOMRectReadOnly;
+    prevOnVisibleState: boolean;
+  }
+  interface Document extends ElemenExtendMethods {
+    conditionsStorage: ConditionsStorage;
+    eventStorage: EventStorage;
+    mutationObserver: MutationObserver;
+    resizeObserver: ResizeObserver;
+    intersectionObserver: IntersectionObserver;
+  }
+  interface Window extends ElemenExtendMethods {
+    conditionalEventsOption: ConditionalEventsOption;
+  }
 }

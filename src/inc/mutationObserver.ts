@@ -1,9 +1,9 @@
 import { getElementsByEventName, getElementsByEventNames } from "./helpers";
-import { ConditionEventsOption, ExtendElement, mutationObserverEvents } from "./models";
+import { ConditionalEventsOption, ExtendElement, mutationObserverEvents } from "./models";
 
 export class mutationObserver {
   mutationObserver: MutationObserver | null;
-  constructor(public handlers: any[], options: ConditionEventsOption = {}) {}
+  constructor(public handlers: any[], options: ConditionalEventsOption = {}) {}
   hasMutations(mutations: any[]) {
     for (let handler of this.handlers) {
       handler(mutations);

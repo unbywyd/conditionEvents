@@ -3,7 +3,7 @@ import { eventStorage } from "./state";
 import {
   Callback,
   ConditionalConfig,
-  ConditionEventsOption,
+  ConditionalEventsOption,
   EventData,
   EventStorage,
   EventStorageData,
@@ -36,7 +36,7 @@ import { mutationObserver } from "./mutationObserver";
 import { resizeObserver } from "./resizeObserver";
 import { intersectionObserver } from "./intersectionObserver";
 export default function customEventsInit(
-  options: ConditionEventsOption,
+  options: ConditionalEventsOption,
   observers: {}
 ) {
   let displatchEvent = (el: Element, eventName: EventName, data: any) => {
@@ -51,7 +51,7 @@ export default function customEventsInit(
       intersectionObserver: intersectionObserver;
     };
   class mutationDepEvents extends AbstractEvent {
-    options: ConditionEventsOption;
+    options: ConditionalEventsOption;
     constructor(eventName: string) {
       super(eventName);
     }

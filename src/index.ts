@@ -4,7 +4,7 @@ import { omit } from "./inc/helpers";
 import {
   Callback,
   ConditionalConfig,
-  ConditionEventsOption,
+  ConditionalEventsOption,
   EventData,
   EventName,
   EventStorageData,
@@ -20,7 +20,7 @@ import { mutationObserver } from "./inc/mutationObserver";
 import { resizeObserver } from "./inc/resizeObserver";
 import { intersectionObserver } from "./inc/intersectionObserver";
 
-export default function(options: ConditionEventsOption={}) {
+export default function(options: ConditionalEventsOption={}) {
   options = Object.assign(
     {},
     {
