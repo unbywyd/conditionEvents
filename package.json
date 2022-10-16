@@ -35,7 +35,7 @@
   },
   "scripts": {
     "dev": "title conditionEvents && webpack serve --mode development --env dev --open /",
-    "build": "tsc && webpack --mode production --env production"
+    "build": "tsc && typedoc && webpack --mode production --env production"
   },
   "author": "",
   "license": "ISC"
