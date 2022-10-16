@@ -3,7 +3,6 @@ import { mutationObserver } from "./mutationObserver";
 import { resizeObserver } from "./resizeObserver";
 
 export type Selector = string;
-export type EventName = string;
 export type Value = string | number | boolean;
 export type Callback = (event: EventType) => void;
 export type AnyCallback = (...args: any[]) => void;
@@ -49,13 +48,27 @@ export const onDeleteClassNameEventName = "onDeleteClassName";
 export const onVisibilityEventName = "onVisibility";
 export const onVisibleEventName = "onVisible";
 export const onHiddenEventName = "onHidden";
-export const intersectionEvents = [
+
+
+export type EventName =
+  | typeof onResizeEventName
+  | typeof onChangeAttributeEventName
+  | typeof onAddAttributeEventName
+  | typeof onDeleteAttributeEventName
+  | typeof onAddClassNameEventName
+  | typeof onDeleteClassNameEventName
+  | typeof onVisibilityEventName
+  | typeof onVisibleEventName
+  | typeof onHiddenEventName
+
+
+export const intersectionEvents: Array<Partial<EventName>> = [
   onHiddenEventName,
   onVisibleEventName,
   onVisibilityEventName,
 ];
 
-export const mutationObserverEvents = [
+export const mutationObserverEvents: Array<Partial<EventName>> = [
   onChangeAttributeEventName,
   onAddAttributeEventName,
   onDeleteAttributeEventName,
@@ -112,9 +125,7 @@ export interface ConditionalEventsOptions {
   mutationObserverOptions?: {
     subtree?: boolean;
     globalSingleListener?: boolean;
-    rootElement?: HTMLElement;
-    characterData?: boolean;
-    childList?: boolean;
+    rootElement?: Element;
   };
   intersectionObserverOptions?: {
     rootMargin?: IntersectionObserver["rootMargin"];

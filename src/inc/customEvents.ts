@@ -27,7 +27,7 @@ import {
   onHiddenEventName,
   EventName,
   ObserverControllers,
-  ListenerConfig,
+  ListenerConfig
 } from "./models";
 
 export default function customEventsInit(
@@ -42,7 +42,7 @@ export default function customEventsInit(
   let { mutationObserver, resizeObserver, intersectionObserver } = observers;
   class mutationDepEvents extends AbstractEvent {
     options: ConditionalEventsOptions;
-    constructor(eventName: string) {
+    constructor(eventName: EventName) {
       super(eventName);
     }
     mutationsHandler(mutations: any[]) {}
@@ -242,7 +242,7 @@ export default function customEventsInit(
           entry.target.prevOnVisibilityState = state;
           displatchEvent(entry.target, this.eventName, {
             detail,
-            bubbles: true, // ?
+            bubbles: true
           });
         }
       }
@@ -264,7 +264,7 @@ export default function customEventsInit(
 
   function onVisibleHandler(entry: any) {
     let detail = new onVisibleDetail(entry);
-    let push = (eventName: string, state: boolean) => {
+    let push = (eventName: EventName, state: boolean) => {
       entry.target.prevOnVisibleState = state;
       displatchEvent(entry.target, eventName, {
         detail,
@@ -334,6 +334,6 @@ export default function customEventsInit(
     onResize,
     onVisibility,
     onVisible,
-    onHidden,
+    onHidden    
   };
 }

@@ -34,34 +34,30 @@ const Init: lazyPlugin = function (
   let state: Map<string, Array<CallbackData>> = new Map();
   let notifi = () => {
     if (!options.mutationObserverOptions?.globalSingleListener) {
-      console.error(
-        `Delayed callback assignment requires "mutationObserverOptions?.globalSingleListener" option to be set to True`
+      console.warn(
+        `Requires "mutationObserverOptions?.globalSingleListener" option to be set to True to use lazy method`
       );
     }
     return options.mutationObserverOptions?.globalSingleListener;
   };
   if (options.mutationObserverOptions?.globalSingleListener) {
-    observers.mutationObserver.handlers.push(function (
+    observers.mutationObserver.handlers.push(function lazy(
       mutations: Array<MutationRecord>
     ) {
       for (let mutation of mutations) {
         let el = mutation.target;
-        if (el instanceof HTMLElement) {
-          let nodes = Array.from(mutation.addedNodes).filter((el) => el instanceof HTMLElement) as Array<HTMLElement>;
-          let els: Array<HTMLElement> = [el, ...nodes];
+        if (el instanceof Element) {
+          let nodes = Array.from(mutation.addedNodes).filter(
+            (el) => el instanceof Element
+          ) as Array<Element>;
+          let els: Array<Element> = [el, ...nodes];
           for (let selector of state.keys()) {
             for (let elm of els) {
               if (elm.matches(selector)) {
                 let storage = state.get(selector);
                 if (storage?.length) {
                   for (let callbackData of storage) {
-                    callbackData.callback(elm);
-                    if(callbackData.eventName === onResizeEventName) {                      
-                      observers.resizeObserver.addElement(elm);
-                    } else if(intersectionEvents.includes(callbackData.eventName)) {
-                      observers.intersectionObserver.addElement(elm);
-                    }
-                    _destroy(selector, callbackData); // Remove from awating
+                    _handler(elm, callbackData);
                   }
                 }
               }
@@ -71,7 +67,14 @@ const Init: lazyPlugin = function (
       }
     });
   }
-
+  function _handler(elm: Element, callbackData: CallbackData) {
+    callbackData.callback(elm);
+    if (callbackData.eventName === onResizeEventName) {
+      observers.resizeObserver.addElement(elm);
+    } else if (intersectionEvents.includes(callbackData.eventName)) {
+      observers.intersectionObserver.addElement(elm);
+    }
+  }
   function _destroy(selector: string, callbackData: CallbackData) {
     let storage = state.get(selector);
     storage?.splice(storage?.indexOf(callbackData), 1);
@@ -117,9 +120,12 @@ const Init: lazyPlugin = function (
       )
     ) {
       return console.warn(
-        `lazy callback for ${eventName} event already registered`
+        `lazy callback for ${eventName} event by ${selector} selector already registered`
       );
     }
+    document.querySelectorAll(selector).forEach((el) => {
+      _handler(el, callbackData);
+    });
     storage?.push(callbackData);
   }
   return {

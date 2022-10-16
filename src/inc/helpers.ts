@@ -55,7 +55,7 @@ export function omit(obj: any, ...props: any) {
   return result;
 }
 
-export function elementInViewport(el: HTMLElement) {
+export function elementInViewport(el: Element) {
   var rect = el.getBoundingClientRect();
   return (
     rect.top >= 0 &&
@@ -66,7 +66,19 @@ export function elementInViewport(el: HTMLElement) {
   );
 }
 
-export function elementPartialInViewport(el: HTMLElement) {
+export function getRegisteredEventNames() {
+  let events: Array<string> = [];
+  eventStorage.forEach((storage, el) => {
+    Object.keys(storage).forEach(key => {
+      if(!events.includes(key)) {
+        events.push(key);
+      }
+    });
+  });
+  return events;
+}
+
+export function elementPartialInViewport(el: Element) {
   const rect = el.getBoundingClientRect();
   const windowHeight =
     window.innerHeight || document.documentElement.clientHeight;

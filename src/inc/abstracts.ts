@@ -1,7 +1,7 @@
-import { Callback, ConditionalConfig, ConditionalEventsOptions, EventData, EventStorage, ExtendElement } from "./models";
+import { Callback, ConditionalConfig, ConditionalEventsOptions, EventData, EventName, EventStorage, ExtendElement } from "./models";
 
 export abstract class AbstractEvent {
-    constructor(public eventName: string) {
+    constructor(public eventName: EventName) {
     }
     init(options: ConditionalEventsOptions) {}
     regCallback(element: ExtendElement, callback: Callback, conditionalConfig?: ConditionalConfig, eventListenerOptions?: any) {}

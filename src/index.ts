@@ -72,10 +72,14 @@ export default function (options: ConditionalEventsOptions = {}) {
         "mutationsHandler" in
         customEventsStorage[CustomEventsClasses[moduleName].name]
       ) {
-        mutationHandlers.push(
-          customEventsStorage[
-            CustomEventsClasses[moduleName].name
-          ].mutationsHandler.bind(
+        let method = customEventsStorage[
+          CustomEventsClasses[moduleName].name
+        ].mutationsHandler;
+        Object.defineProperty(method, "name", {
+          value: CustomEventsClasses[moduleName].name,
+        });
+
+        mutationHandlers.push(method.bind(
             customEventsStorage[CustomEventsClasses[moduleName].name]
           )
         );
@@ -230,7 +234,7 @@ export default function (options: ConditionalEventsOptions = {}) {
     let callbacks = getCallbacks(this, eventName);
     let lazyCallback;
     if (eventListenerOptions.lazy && conditionalConfig.selector) {
-      lazyCallback = function (element: HTMLElement) {};
+      lazyCallback = function (element: Element) {};
       LazyInstance.provide(conditionalConfig.selector, eventName, lazyCallback);
     }
     regCallbacksForCustomEvent(
@@ -280,7 +284,7 @@ export default function (options: ConditionalEventsOptions = {}) {
         removeHandler(eventName);
       } else {
         for (let eventName in storage) {
-          removeHandler(eventName);
+          removeHandler(eventName as EventName);
         }
       }
     });
