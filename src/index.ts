@@ -36,8 +36,8 @@ export default function (options: ConditionalEventsOptions = {}) {
       intersectionObserverOptions: {
         rootMargin: "0px",
       },
-    },
-    options
+    },    
+    options,
   );
   let mutationHandlers: Array<MutationObserverHandler> = [];
   let mutationObserverController = new mutationObserver(
@@ -314,7 +314,8 @@ export default function (options: ConditionalEventsOptions = {}) {
     if (callbacks.size === 0 && removeEventListener) {
       element.removeEventListener(
         eventName,
-        storage[eventName].implementedHandler
+        storage[eventName].implementedHandler,
+        true
       );
       delete storage[eventName];
     }
@@ -374,6 +375,9 @@ export default function (options: ConditionalEventsOptions = {}) {
   let initReturns: InitReturns = {
     removeEvents,
     options,
+    setOptions(_options: ConditionalEventsOptions) {
+      options = Object.assign(options, _options);      
+    },
     ...controllers,
   };
   return initReturns;

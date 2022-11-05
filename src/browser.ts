@@ -1,6 +1,2 @@
-import Init from "./index";
-Init(window.ConditionalEventsOptions ?? {
-    mutationObserverOptions: {
-        globalSingleListener: true
-    }
-});
+import initConditionalEvents from "./index";
+window.ConditionalEvents = initConditionalEvents(typeof window.ConditionalEventsOptions === 'object' ? window.ConditionalEventsOptions : {});

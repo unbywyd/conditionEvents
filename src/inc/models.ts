@@ -239,6 +239,7 @@ export type RemoveEventsMethod = (
 ) => void;
 
 export interface InitReturns {
+  setOptions: any,
   mutationObserver: mutationObserver;
   resizeObserver: resizeObserver;
   intersectionObserver: intersectionObserver;
@@ -260,5 +261,6 @@ declare global {
   }
   interface Window extends ElemenExtendMethods {
     ConditionalEventsOptions: ConditionalEventsOptions;
+    ConditionalEvents: any;
   }
 }

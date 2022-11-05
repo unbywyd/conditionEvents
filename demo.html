@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+      integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="browser.min.js"></script>
+  </head>
+  <body>
+    <div class="pd">
+      <div class="container">
+        <h1>Conditional Events</h1>
+        <p>
+          This lib supports <b>standard DOM events</b> and custom events such
+          as:
+        </p>
+        <ul>
+          <li>onAttributeChange</li>
+          <li>onAttributeAdded</li>
+          <li>onAttributeDeleted</li>
+          <li>onDeleteClassName</li>
+          <li>onAddClassName</li>
+          <li>onResize</li>
+          <li>onVisibility</li>
+          <li>onVisible</li>
+          <li>onHidden</li>
+        </ul>
+        <hr />
+        <div class="card">
+          <div class="card-body">
+            <h2>Get started</h2>
+            <hr />
+            <h3>ES6</h3>
+            <p><code>npm install conditional_events</code></p>
+            <p>
+              <code
+                >import InitConditionalEvents from "conditional_events"; <br />
+                InitConditionalEvents();</code
+              >
+            </p>
+            <h3>Browser</h3>
+            <p>
+              Just include <code>browser.min.js</code> file in your document and
+              use it! You will immediately have access to methods and the global
+              instance <code>window.ConditionalEvents</code>
+            </p>
+          </div>
+        </div>
+        <hr />
+        <script>
+          let id = 0;
+          function PrintEvent(event) {
+            id += 1;
+            let span = document.createElement("pre");
+            let date = `${new Date().getMinutes()}:${new Date().getSeconds()}`;
+            console.log(`${id}.${date}:`, event);
+            let detail =
+              "object" == typeof event.detail
+                ? `Details: ${JSON.stringify(event.detail, null, 4)}`
+                : "";
+            span.innerText = `
+[${id}.${date}]:
+Event type: ${event.type}
+Target: ${event.target.outerHTML.replace(/[\n\s]+/g, " ")}
+${detail}`;
+            document.getElementById("myconsole").appendChild(span);
+          }
+        </script>
+        <div class="card">
+          <div class="card-body">
+            <h2>
+              <b>addConditionalEventListener</b>,
+              <b>removeConditionalEventListener</b>
+            </h2>
+            <p>Use these methods, for example simple delegate event:</p>
+            <p>Global click listener with filter by <b>select</b> (delegate)</p>
+            <button class="btn btn-primary" id="btn-1">
+              Click me / Focus me
+            </button>
+            <button class="btn btn-danger" id="btn-1-r">Remove events</button>
+            <button class="btn btn-success" id="btn-1-s">Set events</button>
+            <script>
+              let setEvents = () => {
+                document.addConditionalEventListener("click", PrintEvent, {
+                  selector: "#btn-1",
+                });
+                document.addConditionalEventListener(
+                  "focus",
+                  PrintEvent,
+                  {
+                    selector: "#btn-1",
+                  },
+                  {
+                    capture: true,
+                  }
+                );
+              };
+              setEvents();
+            </script>
+            <pre>
+&lt;script&gt;
+    document.addConditionalEventListener(&quot;click&quot;, PrintEvent, {
+        selector: &quot;#btn-1&quot;,
+    });
+ &lt;/script&gt;
+
+ document.addConditionalEventListener(
+    &quot;focus&quot;,
+    PrintEvent,
+    {
+      selector: &quot;#btn-1&quot;,
+    },
+    {
+      capture: true,
+    }
+);
+            </pre>
+
+            <script>
+              document
+                .getElementById("btn-1-r")
+                .addEventListener("click", (e) => {
+                  e.preventDefault();
+                  document.removeConditionalEventListener("click", PrintEvent);
+                  document.removeConditionalEventListener("focus", PrintEvent);
+                });
+              document
+                .getElementById("btn-1-s")
+                .addEventListener("click", (e) => {
+                  e.preventDefault();
+                  setEvents();
+                });
+            </script>
+          </div>
+        </div>
+        <hr />
+        <div class="card">
+          <div class="card-body">
+            <h3>Possible filters (See docs)</h3>
+            <p>You can use any combination of filters</p>
+            <pre>
+export interface ConditionalConfig {
+    selector?: string;
+    media?: string | Array&lt;string&gt;;
+    attrNameContains?: RegExp | string | Array&lt;string | RegExp&gt;;
+    valueContains?: RegExp | Value | Array&lt;Value | RegExp&gt;;
+    oldValueContains?: RegExp | Value | Array&lt;Value | RegExp&gt;;
+    isFullyVisible?: boolean;
+    isVisible?: boolean;
+    isFocused?: boolean;
+    isChecked?: boolean;
+    isDisabled?: boolean;
+    is?: (event: any) =&gt; boolean;
+}
+</pre
+            >
+
+            <h4>For example:</h4>
+            <pre>
+{
+    selector: ".demo-btn",
+    isFocused: true
+}
+</pre
+            >
+            <div class="demo-btn btn btn-danger">
+              Clickable without focus will not work (because it's a div)
+            </div>
+            <button class="demo-btn btn btn-success">
+              Clickable with focus will work (because it's a button)
+            </button>
+            <script>
+              document.addConditionalEventListener(
+                "click",
+                (e) => {
+                  PrintEvent(e);
+                },
+                {
+                  selector: ".demo-btn",
+                  isFocused: true,
+                }
+              );
+            </script>
+
+            <br />
+            <br />
+            <h4>@media query</h4>
+            <pre>
+{
+    media: '(min-width: 1200px)',
+    selector: ".demo-btn2"
+}
+</pre
+            >
+            <button class="demo-btn2 btn btn-success">
+              Clickable if (min-width: 1200px) === true
+            </button>
+            <script>
+              document.addConditionalEventListener(
+                "click",
+                (e) => {
+                  PrintEvent(e);
+                },
+                {
+                  selector: ".demo-btn2",
+                  media: "(min-width: 1200px)",
+                }
+              );
+            </script>
+            <br /><br />
+            <h3>Forms</h3>
+            <p>You can use filters such as</p>
+            <ul>
+              <li>isFocused</li>
+              <li>isChecked</li>
+              <li>isDisabled</li>
+              <li>valueContains</li>
+            </ul>
+            <label for="label2">Write: <b>test</b></label>
+            <pre>
+{
+    valueContains: /^test$/,
+    selector: '.input-1'
+}
+</pre
+            >
+            <input type="text" class="form-control input-1" id="label2" />
+            <script>
+              document.addConditionalEventListener(
+                "input",
+                (e) => {
+                  PrintEvent(e);
+                },
+                {
+                  valueContains: /^test$/,
+                  selector: ".input-1",
+                }
+              );
+            </script>
+          </div>
+        </div>
+        <hr />
+        <div class="card">
+          <div class="card-body">
+            <h2>Custom events</h2>
+            <p>Custom events are based on Observers!</p>
+
+            <label for="test">Resize me</label>
+            <p class="alert alert-info">
+              onResize works only for concrete element to be resized (without
+              delegate), or you can use lazy option see below
+            </p>
+            <textarea
+              name=""
+              class="form-control"
+              id="test"
+              cols="30"
+              rows="10"
+            ></textarea>
+            <script>
+              document
+                .getElementById("test")
+                .addConditionalEventListener("onResize", PrintEvent);
+            </script>
+            <pre>
+    document.getElementById("test").addConditionalEventListener("onResize", PrintEvent);
+</pre
+            >
+            <p>
+              <b>Lazy</b> - The event will be assigned when the element appears
+              on the DOM
+            </p>      
+<pre>
+ConditionalEvents.setOptions({
+    mutationObserverOptions: {
+        globalSingleListener: true
+    },
+});
+document.addConditionalEventListener(
+    "onResize",
+    PrintEvent,
+    {
+        selector: "#test2",
+    },
+    {
+        lazy: true,
+    }
+);
+</pre>      
+            <textarea
+              name=""
+              class="form-control"
+              id="test2"
+              cols="30"
+              rows="10"
+            ></textarea>
+            <script>
+                ConditionalEvents.setOptions({
+                  mutationObserverOptions: {
+                    globalSingleListener: true,
+                  },
+                });
+                document.addConditionalEventListener(
+                  "onResize",
+                  PrintEvent,
+                  {
+                    selector: "#test2",
+                  },
+                  {
+                    lazy: true,
+                  }
+                );
+              </script>              
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="example_code">
+      <div class="container">
+        <h2>Console for example:</h2>
+        <p>
+          Perform various actions on the console and watch events here, also see
+          source events in browser console
+        </p>
+        <div class="code-place" id="myconsole"></div>
+      </div>
+    </div>
+    <style>
+      pre {
+        margin: 20px 0;
+        background-color: #000;
+        color: yellowgreen;
+        padding: 10px;
+      }
+      body {
+        padding-bottom: 250px;
+      }
+      .code-place {
+        padding: 10px 0;
+        display: flex;
+        flex-direction: column-reverse;
+      }
+      #example_code h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+      #example_code code {
+        display: block;
+        margin: 0;
+        line-height: 1.2;
+      }
+      #example_code {
+        padding: 10px;
+        font-size: 12px;
+        font-family: monospace;
+        color: yellow;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 250px;
+        overflow-y: auto;
+        background-color: #000;
+      }
+      .pd {
+        padding: 20px;
+      }
+    </style>
+  </body>
+</html>

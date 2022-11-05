@@ -18,13 +18,13 @@ import { conditionsStorage } from "./state";
 
 import * as conditionsModules from "./conditions.modules";
 
-function regCondition(checker: ConditionFunction) {
-  conditionsStorage.set(checker.name as keyof ConditionalConfig, checker);
+function regCondition(name: string, checker: ConditionFunction) {
+  conditionsStorage.set(name as keyof ConditionalConfig, checker);
 }
 
 for (let moduleName in conditionsModules) {
   let modules: any = conditionsModules;
-  regCondition(modules[moduleName]);
+  regCondition(moduleName, modules[moduleName]);
 }
 
 export function conditionsChecker(
@@ -33,7 +33,6 @@ export function conditionsChecker(
   eventData: EventData
 ): boolean {
   let conditionalConfig = eventData.conditionalConfig;
-
   for (let key in conditionalConfig) {
     if (key in conditionsModules) {
       let configValue = prepareValue(
