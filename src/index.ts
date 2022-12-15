@@ -1,6 +1,8 @@
 import { conditionsChecker } from "./inc/conditions";
 import { omit } from "./inc/helpers";
 
+export * from "./inc/models";
+
 import {
   Callback,
   ConditionalConfig,
