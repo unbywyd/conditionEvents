@@ -37,6 +37,6 @@
     "dev": "title conditionEvents && webpack serve --mode development --env dev --open /",
     "build": "tsc && typedoc && webpack --mode production --env production"
   },
-  "author": "",
+  "author": "Unbywyd",
   "license": "ISC"
 }
