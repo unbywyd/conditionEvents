@@ -1,6 +1,6 @@
 {
   "name": "conditional_events",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "The library allows you to listen to non-standard and standard events using conditions",
   "main": "dist/es6/index.js",
   "devDependencies": {
