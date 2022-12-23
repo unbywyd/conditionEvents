@@ -1,4 +1,4 @@
-import { EventName, ExtendElement } from "./models";
+import { ConditionalConfig, EventName, EventType, ExtendElement } from "./models";
 import { eventStorage } from "./state";
 
 export function splitValue(value: string) {
@@ -53,6 +53,18 @@ export function omit(obj: any, ...props: any) {
     delete result[prop];
   });
   return result;
+}
+
+export function hasSelector(event: EventType, value: ConditionalConfig["selector"]): boolean {
+  for (let el of event.composedPath()) {
+    if ("matches" in el) {
+      let elm: any = el as any;
+      if (elm.matches(value)) {
+        return true;
+      }
+    }
+  }
+  return false
 }
 
 export function elementInViewport(el: Element) {

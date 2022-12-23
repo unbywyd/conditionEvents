@@ -2,6 +2,7 @@ import {
   checkValues,
   elementInViewport,
   elementPartialInViewport,
+  hasSelector,
 } from "./helpers";
 import {
   ConditionalConfig,
@@ -14,15 +15,7 @@ export function selector(
   configValue: ConditionalConfig["selector"],
   event: EventType
 ): boolean {
-  for (let el of event.composedPath()) {
-    if ("matches" in el) {
-      let elm: any = el as any;
-      if (elm.matches(configValue)) {
-        return true;
-      }
-    }
-  }
-  return false;
+  return hasSelector(event, configValue);
 }
 
 export function media(configValue: ConditionalConfig["media"]): boolean {

@@ -2,6 +2,7 @@ import { conditionsChecker } from "./inc/conditions";
 import { omit } from "./inc/helpers";
 
 export * as Types from "./inc/models";
+export * as Conditions from "./inc/conditions.modules";
 
 import {
   Callback,
